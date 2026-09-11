@@ -1,0 +1,63 @@
+services:
+  insurance-service:
+    build:
+      context: .
+      dockerfile: insurance-service/Dockerfile
+    container_name: insurance-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      db-insurance-service:
+        condition: service_healthy
+      insurance-registry-emulator:
+        condition: service_started
+
+  insurance-registry-emulator:
+    build:
+      context: .
+      dockerfile: insurance-registry-emulator/Dockerfile
+    container_name: insurance-registry-emulator
+    ports:
+      - "8081:8081"
+    depends_on:
+      db-insurance-registry-emulator:
+        condition: service_healthy
+
+  db-insurance-service:
+    image: postgres:17.11
+    container_name: db-insurance-service
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: insuranceservice123
+      POSTGRES_DB: insurance_service
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_insurance_service_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U db_user -d insurance_service" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-insurance-registry-emulator:
+    image: postgres:17.11
+    container_name: db-insurance-registry-emulator
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: insuranceregistry123
+      POSTGRES_DB: insurance_registry
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_insurance_registry_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U db_user -d insurance_registry" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_insurance_service_data:
+  db_insurance_registry_data:
+

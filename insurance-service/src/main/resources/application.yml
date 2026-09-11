@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: insurance-service
+  datasource:
+    url: jdbc:postgresql://db-insurance-service:5432/insurance_service
+    username: db_user
+    password: insuranceservice123
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml

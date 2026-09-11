@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="CREATE_REGISTER_USER_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="register_user">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_register_user_id"/>
+            </column>
+            <column name="name" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="surname" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patronymic" type="${type.string}"/>
+            <column name="identification_number" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="CREATE_REGISTRY_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="registry">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_registry_id"/>
+            </column>
+            <column name="registry_number" type="${type.string}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="registry_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_number" type="${type.string}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="contract_start_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_end_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sum_insured" type="${type.numeric}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insured_user_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="policyholder_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="registry"
+                baseColumnNames="insured_user_id"
+                referencedTableName="register_user"
+                referencedColumnNames="id"
+                constraintName="fk_registry_insured_user_id"/>
+        <addForeignKeyConstraint
+                baseTableName="registry"
+                baseColumnNames="policyholder_id"
+                referencedTableName="register_user"
+                referencedColumnNames="id"
+                constraintName="fk_registry_policyholder_id"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_BENEFICIARY_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract_beneficiary">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_beneficiary_id"/>
+            </column>
+            <column name="registry_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="beneficiary_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract_beneficiary"
+                baseColumnNames="registry_id"
+                referencedTableName="registry"
+                referencedColumnNames="id"
+                constraintName="fk_contract_beneficiary_registry_id"/>
+        <addForeignKeyConstraint
+                baseTableName="contract_beneficiary"
+                baseColumnNames="beneficiary_id"
+                referencedTableName="register_user"
+                referencedColumnNames="id"
+                constraintName="fk_contract_beneficiary_beneficiary_id"/>
+        <addUniqueConstraint
+                tableName="contract_beneficiary"
+                columnNames="registry_id, beneficiary_id"
+                constraintName="uq_contract_beneficiary_registry_id_beneficiary_id"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_INSURANCE_EVENT_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract_insurance_event">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_insurance_event_id"/>
+            </column>
+            <column name="registry_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_event" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract_insurance_event"
+                baseColumnNames="registry_id"
+                referencedTableName="registry"
+                referencedColumnNames="id"
+                constraintName="fk_contract_insurance_event_registry_id"/>
+        <addUniqueConstraint
+                tableName="contract_insurance_event"
+                columnNames="registry_id, insurance_event"
+                constraintName="uq_contract_insurance_event_registry_id_insurance_event"/>
+    </changeSet>
+</databaseChangeLog>

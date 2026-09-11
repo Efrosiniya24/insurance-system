@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="CREATE_USER_PERSONAL_DATA_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="user_personal_data">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_user_personal_data_id"/>
+            </column>
+            <column name="name" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="surname" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patronymic" type="${type.string}"/>
+            <column name="passport_series" type="${type.string}"/>
+            <column name="passport_number" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identification_number" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passport_issued_by" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passport_issued_at" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registration_address" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gender" type="${type.string}"/>
+            <column name="citizenship" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="CREATE_APPLICATION_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="application">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_application_id"/>
+            </column>
+            <column name="application_number" type="${type.string}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_by_user_id" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_status" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="policyholder_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insured_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sum_insured" type="${type.numeric}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_premium" type="${type.numeric}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="premium_frequency" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rejection_reason" type="${type.string}"/>
+            <column name="contract_start_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_end_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="${type.timestamp}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="${type.timestamp}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="application"
+                baseColumnNames="policyholder_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_application_policyholder_id"/>
+        <addForeignKeyConstraint
+                baseTableName="application"
+                baseColumnNames="insured_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_application_insured_id"/>
+        <createIndex tableName="application" indexName="idx_application_application_status">
+            <column name="application_status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="CREATE_APPLICATION_BENEFICIARY_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="application_beneficiary">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_application_beneficiary_id"/>
+            </column>
+            <column name="application_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="beneficiary_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="application_beneficiary"
+                baseColumnNames="application_id"
+                referencedTableName="application"
+                referencedColumnNames="id"
+                constraintName="fk_application_beneficiary_application_id"/>
+        <addForeignKeyConstraint
+                baseTableName="application_beneficiary"
+                baseColumnNames="beneficiary_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_application_beneficiary_beneficiary_id"/>
+        <addUniqueConstraint
+                tableName="application_beneficiary"
+                columnNames="application_id, beneficiary_id"
+                constraintName="uq_application_beneficiary_application_id_beneficiary_id"/>
+    </changeSet>
+
+    <changeSet id="CREATE_APPLICATION_INSURANCE_EVENT_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="application_insurance_event">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_application_insurance_event_id"/>
+            </column>
+            <column name="application_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_event" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="application_insurance_event"
+                baseColumnNames="application_id"
+                referencedTableName="application"
+                referencedColumnNames="id"
+                constraintName="fk_application_insurance_event_application_id"/>
+        <addUniqueConstraint
+                tableName="application_insurance_event"
+                columnNames="application_id, insurance_event"
+                constraintName="uq_application_insurance_event_application_id_insurance_event"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_id"/>
+            </column>
+            <column name="contract_number" type="${type.string}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="contract_start_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_end_date" type="${type.date}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="policyholder_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insured_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sum_insured" type="${type.numeric}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_premium" type="${type.numeric}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="premium_frequency" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_id" type="${type.bigint}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="${type.timestamp}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_by_user_id" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract"
+                baseColumnNames="application_id"
+                referencedTableName="application"
+                referencedColumnNames="id"
+                constraintName="fk_contract_application_id"/>
+        <addForeignKeyConstraint
+                baseTableName="contract"
+                baseColumnNames="policyholder_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_contract_policyholder_id"/>
+        <addForeignKeyConstraint
+                baseTableName="contract"
+                baseColumnNames="insured_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_contract_insured_id"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_BENEFICIARY_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract_beneficiary">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_beneficiary_id"/>
+            </column>
+            <column name="contract_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="beneficiary_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract_beneficiary"
+                baseColumnNames="contract_id"
+                referencedTableName="contract"
+                referencedColumnNames="id"
+                constraintName="fk_contract_beneficiary_contract_id"/>
+        <addForeignKeyConstraint
+                baseTableName="contract_beneficiary"
+                baseColumnNames="beneficiary_id"
+                referencedTableName="user_personal_data"
+                referencedColumnNames="id"
+                constraintName="fk_contract_beneficiary_beneficiary_id"/>
+        <addUniqueConstraint
+                tableName="contract_beneficiary"
+                columnNames="contract_id, beneficiary_id"
+                constraintName="uq_contract_beneficiary_contract_id_beneficiary_id"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_INSURANCE_EVENT_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract_insurance_event">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_insurance_event_id"/>
+            </column>
+            <column name="contract_id" type="${type.bigint}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_event" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract_insurance_event"
+                baseColumnNames="contract_id"
+                referencedTableName="contract"
+                referencedColumnNames="id"
+                constraintName="fk_contract_insurance_event_contract_id"/>
+        <addUniqueConstraint
+                tableName="contract_insurance_event"
+                columnNames="contract_id, insurance_event"
+                constraintName="uq_contract_insurance_event_contract_id_insurance_event"/>
+    </changeSet>
+
+    <changeSet id="CREATE_CONTRACT_REGISTRY_SYNC_TABLE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-1</comment>
+        <createTable tableName="contract_registry_sync">
+            <column name="id" type="${type.bigint}" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_contract_registry_sync_id"/>
+            </column>
+            <column name="contract_id" type="${type.bigint}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="registry_number" type="${type.string}">
+                <constraints unique="true"/>
+            </column>
+            <column name="contract_registry_status" type="${type.string}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sync_error_type" type="${type.string}"/>
+            <column name="error_message" type="${type.string}"/>
+            <column name="attempt_count" type="${type.integer}" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="${type.timestamp}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="${type.timestamp}"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="contract_registry_sync"
+                baseColumnNames="contract_id"
+                referencedTableName="contract"
+                referencedColumnNames="id"
+                constraintName="fk_contract_registry_sync_contract_id"/>
+    </changeSet>
+</databaseChangeLog>

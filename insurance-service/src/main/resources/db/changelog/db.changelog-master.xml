@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <property name="type.bigint" value="bigint"/>
+    <property name="type.string" value="varchar(255)"/>
+    <property name="type.date" value="date"/>
+    <property name="type.numeric" value="numeric(15,2)"/>
+    <property name="type.timestamp" value="timestamp(6)"/>
+    <property name="type.integer" value="integer"/>
+
+    <include file="db.changelog-1.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>
