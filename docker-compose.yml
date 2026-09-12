@@ -11,6 +11,13 @@ services:
         condition: service_healthy
       insurance-registry-emulator:
         condition: service_started
+      keycloak:
+        condition: service_started
+    environment:
+      APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/insurance/protocol/openid-connect/certs
+      APP_SECURITY_JWT_ISSUER_URI: http://localhost:8082/realms/insurance
+      APP_REGISTRY_BASE_URL: http://insurance-registry-emulator:8081
+      APP_REGISTRY_API_KEY: registry-local-key
 
   insurance-registry-emulator:
     build:
@@ -22,6 +29,8 @@ services:
     depends_on:
       db-insurance-registry-emulator:
         condition: service_healthy
+    environment:
+      APP_REGISTRY_API_KEY: registry-local-key
 
   db-insurance-service:
     image: postgres:17.11
@@ -56,6 +65,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7
+    command: start-dev --import-realm
+    ports:
+      - "8082:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
 
 volumes:
   db_insurance_service_data:

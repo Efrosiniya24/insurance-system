@@ -14,3 +14,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+app:
+  registry:
+    api-key: ${APP_REGISTRY_API_KEY:registry-local-key}
