@@ -1,22 +1,30 @@
 package com.insurance.service.security.config;
 
+import com.insurance.service.security.authentication.JwtUserAuthentication;
 import com.insurance.service.security.config.properties.JwtProperties;
+import com.insurance.service.security.dto.AuthenticatedUserDto;
 import com.insurance.service.security.exception.SecurityExceptionHandler;
 import com.insurance.service.security.service.UserSecurityService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Collection;
 
 /**
  * @author yefrosiniya.zinkovskaya
@@ -35,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
         final HttpSecurity http,
-        final JwtAuthenticationConverter jwtAuthenticationConverter,
+        final Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter,
         final SecurityExceptionHandler securityExceptionHandler
     ) {
         return http
@@ -62,9 +70,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(final UserSecurityService userSecurityService) {
-        final JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(userSecurityService::convertRoles);
-        return converter;
+    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter(
+        final UserSecurityService userSecurityService
+    ) {
+        return jwt -> {
+            final AuthenticatedUserDto user = userSecurityService.buildAuthenticatedUser(jwt);
+            final Collection<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.getValue()))
+                .toList();
+            return new JwtUserAuthentication(user, jwt, authorities);
+        };
     }
 }

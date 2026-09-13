@@ -6,8 +6,8 @@ package com.insurance.service.enums;
  */
 public enum ApplicationStatus {
     PENDING,
+    IN_PROGRESS,
     APPROVED,
     REJECTED,
-    IN_PROGRESS,
     CONTRACT_ISSUED
 }

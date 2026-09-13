@@ -1,0 +1,65 @@
+###
+POST http://localhost:8080/application
+Authorization: Bearer {{policyholder_token}}
+Content-Type: application/json
+
+{
+  "policyholderDto": {
+    "name": "Anna",
+    "surname": "Ivanova",
+    "patronymic": "Sergeevna",
+    "passportSeries": "AB",
+    "passportNumber": "1234567",
+    "identificationNumber": "1234567A001PB1",
+    "passportIssuedBy": "RUVS Minsk",
+    "passportIssuedAt": "2018-05-10",
+    "registrationAddress": "Minsk, Nezavisimosti 1",
+    "birthDate": "1990-03-15",
+    "gender": "F",
+    "citizenship": "BY",
+    "phoneNumber": "+375291112233",
+    "email": "anna@example.com"
+  },
+  "insuredIsPolicyholder": true,
+  "beneficiariesDto": [
+    {
+      "beneficiaryType": "POLICYHOLDER"
+    },
+    {
+      "beneficiaryType": "OTHER",
+      "beneficiaryPersonalDataDto": {
+        "name": "Ivan",
+        "surname": "Ivanov",
+        "passportNumber": "7654321",
+        "identificationNumber": "7654321A001PB1",
+        "passportIssuedBy": "RUVS Minsk",
+        "passportIssuedAt": "2015-01-20",
+        "registrationAddress": "Minsk, Lenina 10",
+        "birthDate": "1985-07-01",
+        "citizenship": "BY",
+        "phoneNumber": "+375291110000",
+        "email": "ivan@example.com"
+      }
+    }
+  ],
+  "insuranceEvents": [
+    "DEATH",
+    "DISABILITY"
+  ],
+  "sumInsured": 100000.00,
+  "insurancePremium": 1200.00,
+  "premiumFrequency": "YEARLY",
+  "contractStartDate": "2026-10-01",
+  "contractEndDate": "2027-10-01"
+}
+
+###
+GET http://localhost:8080/application/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJrWlJqLUprdXhaUUpPRW9rUFdVdVhPTGxXaVZ5dVptQmdqeDJ4Zi13QXRFIn0.eyJleHAiOjE3ODkzMzMyOTYsImlhdCI6MTc4OTMzMjk5NiwianRpIjoib25ydHJvOjgyMTk1NjU2LWFlZmMtNjM3OC0zOTMzLWNkMDJiZmRhNmMwNSIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvaW5zdXJhbmNlIiwic3ViIjoiZTUzY2MwNDAtZDVkNi00MjBiLTk1NTktODU4MDc5Nzg3MDg0IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiaW5zdXJhbmNlLXNlcnZpY2UiLCJzaWQiOiJXYWhYcDhST2g4d2hDR3dWdVBtb3pmWDAiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJQT0xJQ1lIT0xERVIiXX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiQW5uYSBJdmFub3ZhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoicG9saWN5aG9sZGVyIiwiZ2l2ZW5fbmFtZSI6IkFubmEiLCJmYW1pbHlfbmFtZSI6Ikl2YW5vdmEiLCJlbWFpbCI6InBvbGljeWhvbGRlckBnbWFpbC5jb20ifQ.uNk_Kg_et-pdWD67xWKpBKyRUg2kX3A2pkUCkzVz6oJoxB2jgWyDRJMn_pSpU8spICHMSQDvUAD4GyVH1AMOBJe9EvCMAnK1HVvKdnGDbmjKCe3P9CI57zPzh_SNHnUrgInLaylUoGVVeAL6rhqWYgo1gYmBZdwmJXcObxGRHd9CiHvQGwmAUA6IE_RGf3ZJ_luB1qGr8crzATwpDAAndYkTxAZd64LfbjJxz31PTqBoJed3boDGKttMY50PHa9FAa0jeKVzZsR2eEf9nMB09akS5O_O5CRiAwuD1ueKKY4irCrQQ7cOygJoZVSHuztmwR8RZwSv2cq8otosdYslNw
+
+###
+GET http://localhost:8080/application/all
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJrWlJqLUprdXhaUUpPRW9rUFdVdVhPTGxXaVZ5dVptQmdqeDJ4Zi13QXRFIn0.eyJleHAiOjE3ODkzMzMyOTYsImlhdCI6MTc4OTMzMjk5NiwianRpIjoib25ydHJvOjgyMTk1NjU2LWFlZmMtNjM3OC0zOTMzLWNkMDJiZmRhNmMwNSIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvaW5zdXJhbmNlIiwic3ViIjoiZTUzY2MwNDAtZDVkNi00MjBiLTk1NTktODU4MDc5Nzg3MDg0IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiaW5zdXJhbmNlLXNlcnZpY2UiLCJzaWQiOiJXYWhYcDhST2g4d2hDR3dWdVBtb3pmWDAiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJQT0xJQ1lIT0xERVIiXX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiQW5uYSBJdmFub3ZhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoicG9saWN5aG9sZGVyIiwiZ2l2ZW5fbmFtZSI6IkFubmEiLCJmYW1pbHlfbmFtZSI6Ikl2YW5vdmEiLCJlbWFpbCI6InBvbGljeWhvbGRlckBnbWFpbC5jb20ifQ.uNk_Kg_et-pdWD67xWKpBKyRUg2kX3A2pkUCkzVz6oJoxB2jgWyDRJMn_pSpU8spICHMSQDvUAD4GyVH1AMOBJe9EvCMAnK1HVvKdnGDbmjKCe3P9CI57zPzh_SNHnUrgInLaylUoGVVeAL6rhqWYgo1gYmBZdwmJXcObxGRHd9CiHvQGwmAUA6IE_RGf3ZJ_luB1qGr8crzATwpDAAndYkTxAZd64LfbjJxz31PTqBoJed3boDGKttMY50PHa9FAa0jeKVzZsR2eEf9nMB09akS5O_O5CRiAwuD1ueKKY4irCrQQ7cOygJoZVSHuztmwR8RZwSv2cq8otosdYslNw
+
+
+

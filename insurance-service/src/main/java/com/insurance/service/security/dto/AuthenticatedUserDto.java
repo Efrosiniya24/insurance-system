@@ -1,4 +1,4 @@
-package com.insurance.service.dto;
+package com.insurance.service.security.dto;
 
 import com.insurance.service.security.enums.UserRole;
 import lombok.AllArgsConstructor;

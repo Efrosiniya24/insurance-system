@@ -1,10 +1,8 @@
 package com.insurance.service.security.service.impl;
 
-import com.insurance.service.dto.AuthenticatedUserDto;
+import com.insurance.service.security.dto.AuthenticatedUserDto;
 import com.insurance.service.security.enums.UserRole;
 import com.insurance.service.security.service.UserSecurityService;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +33,6 @@ public class UserSecurityImpl implements UserSecurityService {
             .username(jwt.getClaimAsString(USERNAME_KEY))
             .roles(extractBusinessRoles(jwt))
             .build();
-    }
-
-    @Override
-    public Collection<GrantedAuthority> convertRoles(final Jwt jwt) {
-        final Set<UserRole> businessRoles = extractBusinessRoles(jwt);
-
-        return businessRoles.stream()
-            .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.getValue()))
-            .toList();
     }
 
     private Set<UserRole> extractBusinessRoles(final Jwt jwt) {

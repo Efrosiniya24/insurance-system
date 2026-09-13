@@ -315,4 +315,14 @@
                 referencedColumnNames="id"
                 constraintName="fk_contract_registry_sync_contract_id"/>
     </changeSet>
+
+    <changeSet id="ADD_APPLICATION_BENEFICIARY_TYPE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-3</comment>
+        <addColumn tableName="application_beneficiary">
+            <column name="beneficiary_type" type="${type.string}" defaultValue="OTHER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <dropDefaultValue tableName="application_beneficiary" columnName="beneficiary_type"/>
+    </changeSet>
 </databaseChangeLog>
