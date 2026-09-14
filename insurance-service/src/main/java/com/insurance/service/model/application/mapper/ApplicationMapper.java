@@ -3,6 +3,7 @@ package com.insurance.service.model.application.mapper;
 import com.insurance.service.enums.InsuranceEvent;
 import com.insurance.service.model.application.dto.ApplicationBeneficiaryResponseDto;
 import com.insurance.service.model.application.dto.ApplicationDto;
+import com.insurance.service.model.application.dto.ApplicationEntityDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.model.application.entity.ApplicationEntity;
 import com.insurance.service.model.user.dto.PersonalDataDto;
@@ -43,4 +44,6 @@ public interface ApplicationMapper {
         Set<InsuranceEvent> insuranceEvents,
         boolean insuredIsPolicyholder
     );
+
+    ApplicationEntityDto toApplicationEntityDto(ApplicationEntity applicationEntity);
 }

@@ -1,7 +1,10 @@
 package com.insurance.service.model.contract.entity;
 
+import com.insurance.service.enums.BeneficiaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,4 +36,8 @@ public class ContractBeneficiaryEntity {
 
     @Column(nullable = false)
     private Long beneficiaryId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BeneficiaryType beneficiaryType;
 }

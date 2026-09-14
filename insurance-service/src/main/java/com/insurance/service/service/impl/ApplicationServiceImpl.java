@@ -8,6 +8,7 @@ import com.insurance.service.model.application.dto.ApplicationBeneficiaryDto;
 import com.insurance.service.model.application.dto.ApplicationBeneficiaryRequestDto;
 import com.insurance.service.model.application.dto.ApplicationBeneficiaryResponseDto;
 import com.insurance.service.model.application.dto.ApplicationDto;
+import com.insurance.service.model.application.dto.ApplicationEntityDto;
 import com.insurance.service.model.application.dto.ApplicationInsuranceEventDto;
 import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
@@ -23,18 +24,17 @@ import com.insurance.service.service.ApplicationBeneficiaryService;
 import com.insurance.service.service.ApplicationInsuranceEventService;
 import com.insurance.service.service.ApplicationService;
 import com.insurance.service.service.UserPersonalDataService;
+import com.insurance.service.util.DocumentUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,11 +51,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ApplicationMapper applicationMapper;
     private final AccessService accessService;
+    private final DocumentUtil documentUtil;
 
     @Override
     @Transactional(readOnly = true)
     public ApplicationDto getApplication(final Long applicationId, final AuthenticatedUserDto currentUser) {
-        final ApplicationEntity application = findApplicationById(applicationId);
+        final ApplicationEntity application = getApplicationEntity(applicationId);
 
         accessService.ownerUserOrUnderwriter(currentUser, application.getCreatedByUserId());
         return toApplicationDto(application);
@@ -84,7 +85,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         final ApplicationEntity saved = applicationRepository.save(
             applicationMapper.toEntityWhenCreateApplication(
                 request,
-                makeApplicationNumber(),
+                documentUtil.makeDocumentNumber("EP"),
                 currentUserId,
                 policyholder.getId(),
                 insured.getId(),
@@ -119,7 +120,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         final Long applicationId,
         final ApplicationUpdateStatusDto applicationUpdateStatusDto
     ) {
-        final ApplicationEntity application = findApplicationById(applicationId);
+        final ApplicationEntity application = getApplicationEntity(applicationId);
         final ApplicationStatus currentStatus = application.getApplicationStatus();
         final ApplicationStatus newStatus = applicationUpdateStatusDto.getNewStatus();
 
@@ -143,7 +144,43 @@ public class ApplicationServiceImpl implements ApplicationService {
             .build();
     }
 
-    private ApplicationEntity findApplicationById(final Long applicationId) {
+    @Override
+    public ApplicationEntityDto findApplicationById(final Long applicationId) {
+        return applicationMapper.toApplicationEntityDto(getApplicationEntity(applicationId));
+    }
+
+    @Override
+    public void markAsContractIssued(final Long applicationId, final LocalDateTime updatedAt) {
+        final ApplicationEntity application = getApplicationEntity(applicationId);
+        if (Objects.equals(application.getApplicationStatus(), ApplicationStatus.APPROVED)) {
+            application.setApplicationStatus(ApplicationStatus.CONTRACT_ISSUED);
+            application.setUpdatedAt(updatedAt);
+            applicationRepository.save(application);
+        } else {
+            throw new BusinessException("Application isn't approved. Contract can't be issued");
+        }
+    }
+
+    @Override
+    public ApplicationEntityDto findApplicationByIdForContract(final Long applicationId) {
+        return applicationMapper.toApplicationEntityDto(
+            applicationRepository.findByIdForContract(applicationId)
+                .orElseThrow(() -> new NotFoundException("Application not found"))
+        );
+    }
+
+    @Override
+    public String getCreatorUserId(final Long applicationId) {
+        return applicationRepository.findCreatedByUserId(applicationId)
+            .orElseThrow(() -> new NotFoundException("Application not found"));
+    }
+
+    @Override
+    public List<Long> findAllByCreatedUserId(final String createdUserId) {
+        return applicationRepository.findAllIdsByCreatedByUserId(createdUserId);
+    }
+
+    private ApplicationEntity getApplicationEntity(final Long applicationId) {
         return applicationRepository.findById(applicationId)
             .orElseThrow(() -> new NotFoundException("Application not found"));
     }
@@ -153,15 +190,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         final List<ApplicationBeneficiaryDto> applicationBeneficiaryDtos =
             applicationBeneficiaryService.getByApplicationId(applicationId);
 
-        final Set<Long> usersPersonalDataId = new HashSet<>();
-        usersPersonalDataId.add(application.getPolicyholderId());
-        usersPersonalDataId.add(application.getInsuredId());
-        applicationBeneficiaryDtos.forEach(
-            applicationBeneficiaryDto -> usersPersonalDataId.add(applicationBeneficiaryDto.getBeneficiaryId())
+        final Map<Long, PersonalDataDto> usersPersonalData = userPersonalDataService.getPersonalDataMapByIds(
+            application.getPolicyholderId(),
+            application.getInsuredId(),
+            applicationBeneficiaryDtos,
+            ApplicationBeneficiaryDto::getBeneficiaryId
         );
-        final Map<Long, PersonalDataDto> usersPersonalData = userPersonalDataService.getPersonalDataByIds(usersPersonalDataId)
-            .stream()
-            .collect(Collectors.toMap(PersonalDataDto::getId, Function.identity()));
+
         final Set<InsuranceEvent> events = applicationInsuranceEventService.getByApplicationId(applicationId)
             .stream()
             .map(ApplicationInsuranceEventDto::getInsuranceEvent)
@@ -262,15 +297,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .insuranceEvent(event)
                 .build())
             .toList();
-    }
-
-    private String makeApplicationNumber() {
-        final int shortYear = LocalDate.now().getYear() % 100;
-        final String uuid = UUID.randomUUID().toString()
-            .replace("-", "")
-            .substring(0, 8)
-            .toUpperCase();
-        return "EP-" + shortYear + uuid;
     }
 
     private void validateInsured(final CreateApplicationRequestDto request) {

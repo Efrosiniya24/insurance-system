@@ -8,7 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author yefrosiniya.zinkovskaya
@@ -37,5 +42,21 @@ public class UserPersonalDataServiceImpl implements UserPersonalDataService {
     @Override
     public List<PersonalDataDto> getPersonalDataByIds(final Collection<Long> ids) {
         return userPersonalDataMapper.toDtoList(userPersonalDataRepository.findAllById(ids));
+    }
+
+    @Override
+    public <T> Map<Long, PersonalDataDto> getPersonalDataMapByIds(
+        final Long policyholderId,
+        final Long insuredId,
+        final List<T> linksWithBeneficiary,
+        final Function<T, Long> beneficiaryIdExtractor
+    ) {
+        final Set<Long> personalDataIds = new HashSet<>();
+        personalDataIds.add(policyholderId);
+        personalDataIds.add(insuredId);
+        linksWithBeneficiary.forEach(beneficiary -> personalDataIds.add(beneficiaryIdExtractor.apply(beneficiary)));
+        return getPersonalDataByIds(personalDataIds)
+            .stream()
+            .collect(Collectors.toMap(PersonalDataDto::getId, Function.identity()));
     }
 }
