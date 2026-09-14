@@ -37,4 +37,12 @@ public interface ContractService {
      * @return contracts data
      */
     List<ContractDto> getContractList(AuthenticatedUserDto currentUser);
+
+    /**
+     * Returns contract data for registration in the external registry
+     *
+     * @param contractId contract id
+     * @return contract data
+     */
+    ContractDto getContractForRegistry(Long contractId);
 }

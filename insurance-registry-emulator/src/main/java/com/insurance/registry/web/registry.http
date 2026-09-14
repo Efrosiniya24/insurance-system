@@ -1,0 +1,59 @@
+###
+GET http://localhost:8081/mode
+
+###
+PUT http://localhost:8081/mode
+Content-Type: application/json
+
+{
+  "mode": "UNAVAILABLE"
+}
+
+###
+PUT http://localhost:8081/mode
+Content-Type: application/json
+
+{
+  "mode": "SUCCESS"
+}
+
+###
+POST http://localhost:8081/registry/contracts
+Content-Type: application/json
+
+{
+  "contractNumber": "LC-1",
+  "contractStartDate": "2026-10-01",
+  "contractEndDate": "2027-10-01",
+  "sumInsured": 100000.00,
+  "policyholder": {
+    "name": "Anna",
+    "surname": "Ivanova",
+    "patronymic": "Sergeevna",
+    "identificationNumber": "1234567A001PB1"
+  },
+  "insured": {
+    "name": "Anna",
+    "surname": "Ivanova",
+    "patronymic": "Sergeevna",
+    "identificationNumber": "1234567A001PB1"
+  },
+  "beneficiaries": [
+    {
+      "beneficiaryType": "POLICYHOLDER"
+    },
+    {
+      "beneficiaryType": "OTHER",
+      "person": {
+        "name": "Ivan",
+        "surname": "Ivanov",
+        "patronymic": "Petrovich",
+        "identificationNumber": "7654321A001PB1"
+      }
+    }
+  ],
+  "insuranceEvents": [
+    "DEATH",
+    "DISABILITY"
+  ]
+}

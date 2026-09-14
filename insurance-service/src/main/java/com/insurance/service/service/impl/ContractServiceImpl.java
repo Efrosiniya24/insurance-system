@@ -127,6 +127,14 @@ public class ContractServiceImpl implements ContractService {
         return toContractDtoList(contracts, currentUser.getId());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ContractDto getContractForRegistry(final Long contractId) {
+        final ContractEntity contract = contractRepository.findById(contractId)
+            .orElseThrow(() -> new NotFoundException("Contract not found"));
+        return toContractDto(contract, contract.getIssuedByUserId(), false);
+    }
+
     private List<Long> ownerApplicationIds(final String currentUserId) {
         return applicationService.findAllByCreatedUserId(currentUserId);
     }

@@ -124,4 +124,14 @@
                 columnNames="registry_id, insurance_event"
                 constraintName="uq_contract_insurance_event_registry_id_insurance_event"/>
     </changeSet>
+
+    <changeSet id="ADD_TO_CONTRACT_BENEFICIARY_TYPE" author="yefrosiniya.zinkovskaya">
+        <comment>IS-5</comment>
+        <addColumn tableName="contract_beneficiary">
+            <column name="beneficiary_type" type="${type.string}" defaultValue="OTHER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <dropDefaultValue tableName="contract_beneficiary" columnName="beneficiary_type"/>
+    </changeSet>
 </databaseChangeLog>

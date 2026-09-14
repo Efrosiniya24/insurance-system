@@ -1,5 +1,6 @@
 package com.insurance.service.model.sync.repository;
 
+import com.insurance.service.enums.ContractRegistryStatus;
 import com.insurance.service.model.sync.entity.ContractRegistrySyncEntity;
 import com.insurance.service.model.sync.projection.ContractRegistryStatusProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,6 @@ public interface ContractRegistrySyncRepository extends JpaRepository<ContractRe
         "from ContractRegistrySyncEntity c " +
         "where c.contractId in :contractIds")
     List<ContractRegistryStatusProjection> findAllByContractIdIn(List<Long> contractIds);
+
+    List<ContractRegistrySyncEntity> findAllByContractRegistryStatus(ContractRegistryStatus status);
 }
