@@ -1,5 +1,6 @@
 package com.insurance.service.service.impl;
 
+import com.insurance.service.enums.ApplicationStatus;
 import com.insurance.service.enums.InsuranceEvent;
 import com.insurance.service.exception.BusinessException;
 import com.insurance.service.exception.NotFoundException;
@@ -8,6 +9,7 @@ import com.insurance.service.model.application.dto.ApplicationBeneficiaryRequest
 import com.insurance.service.model.application.dto.ApplicationBeneficiaryResponseDto;
 import com.insurance.service.model.application.dto.ApplicationDto;
 import com.insurance.service.model.application.dto.ApplicationInsuranceEventDto;
+import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.model.application.entity.ApplicationEntity;
@@ -53,8 +55,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @Transactional(readOnly = true)
     public ApplicationDto getApplication(final Long applicationId, final AuthenticatedUserDto currentUser) {
-        final ApplicationEntity application = applicationRepository.findById(applicationId)
-            .orElseThrow(() -> new NotFoundException("Application not found"));
+        final ApplicationEntity application = findApplicationById(applicationId);
 
         accessService.ownerUserOrUnderwriter(currentUser, application.getCreatedByUserId());
         return toApplicationDto(application);
@@ -113,8 +114,38 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationDto approveApplication(final ApplicationUpdateStatusDto applicationUpdateStatusDto) {
-        return null;
+    @Transactional
+    public ApplicationStatusResponseDto updateApplicationStatus(
+        final Long applicationId,
+        final ApplicationUpdateStatusDto applicationUpdateStatusDto
+    ) {
+        final ApplicationEntity application = findApplicationById(applicationId);
+        final ApplicationStatus currentStatus = application.getApplicationStatus();
+        final ApplicationStatus newStatus = applicationUpdateStatusDto.getNewStatus();
+
+        if (!statusCanBeUpdatedTo(currentStatus, newStatus)) {
+            throw new BusinessException("Application status cannot be changed");
+        }
+
+        application.setApplicationStatus(newStatus);
+        application.setRejectionReason(
+            Objects.equals(newStatus, ApplicationStatus.REJECTED)
+                ? applicationUpdateStatusDto.getRejectionReason()
+                : null
+        );
+        application.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(application);
+
+        return ApplicationStatusResponseDto.builder()
+            .id(application.getId())
+            .applicationStatus(application.getApplicationStatus())
+            .rejectionReason(application.getRejectionReason())
+            .build();
+    }
+
+    private ApplicationEntity findApplicationById(final Long applicationId) {
+        return applicationRepository.findById(applicationId)
+            .orElseThrow(() -> new NotFoundException("Application not found"));
     }
 
     private ApplicationDto toApplicationDto(final ApplicationEntity application) {
@@ -282,5 +313,14 @@ public class ApplicationServiceImpl implements ApplicationService {
             .beneficiaryType(beneficiary.getBeneficiaryType())
             .person(person)
             .build();
+    }
+
+    private boolean statusCanBeUpdatedTo(final ApplicationStatus currentStatus, final ApplicationStatus newStatus) {
+        final Set<ApplicationStatus> allowedStatuses = switch (currentStatus) {
+            case PENDING -> Set.of(ApplicationStatus.IN_PROGRESS, ApplicationStatus.APPROVED, ApplicationStatus.REJECTED);
+            case IN_PROGRESS -> Set.of(ApplicationStatus.PENDING, ApplicationStatus.APPROVED, ApplicationStatus.REJECTED);
+            case APPROVED, REJECTED, CONTRACT_ISSUED -> Set.of();
+        };
+        return allowedStatuses.contains(newStatus);
     }
 }

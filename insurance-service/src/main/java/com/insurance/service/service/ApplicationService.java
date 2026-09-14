@@ -1,6 +1,7 @@
 package com.insurance.service.service;
 
 import com.insurance.service.model.application.dto.ApplicationDto;
+import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.security.dto.AuthenticatedUserDto;
@@ -41,5 +42,15 @@ public interface ApplicationService {
         String currentUserId
     );
 
-    ApplicationDto approveApplication(ApplicationUpdateStatusDto applicationUpdateStatusDto);
+    /**
+     * Changes application status if allowed
+     *
+     * @param applicationId              application id
+     * @param applicationUpdateStatusDto new status and rejection reason
+     * @return application id, its new status and rejection reason
+     */
+    ApplicationStatusResponseDto updateApplicationStatus(
+        Long applicationId,
+        ApplicationUpdateStatusDto applicationUpdateStatusDto
+    );
 }

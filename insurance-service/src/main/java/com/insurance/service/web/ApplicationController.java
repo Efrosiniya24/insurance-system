@@ -1,6 +1,7 @@
 package com.insurance.service.web;
 
 import com.insurance.service.model.application.dto.ApplicationDto;
+import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.security.annotation.CurrentUser;
@@ -54,8 +55,12 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.createApplication(request, currentUser.getId()));
     }
 
-    @PutMapping("/approve")
-    public ResponseEntity<ApplicationDto> approveApplication(final @RequestBody ApplicationUpdateStatusDto applicationUpdateStatusDto) {
-        return ResponseEntity.ok(applicationService.approveApplication(applicationUpdateStatusDto));
+    @PreAuthorize("hasAuthority('UNDERWRITER')")
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApplicationStatusResponseDto> updateApplicationStatus(
+        final @PathVariable Long id,
+        final @Valid @RequestBody ApplicationUpdateStatusDto applicationUpdateStatusDto
+    ) {
+        return ResponseEntity.ok(applicationService.updateApplicationStatus(id, applicationUpdateStatusDto));
     }
 }

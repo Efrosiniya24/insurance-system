@@ -1,7 +1,6 @@
 package com.insurance.service.model.application.dto;
 
 import com.insurance.service.enums.ApplicationStatus;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,14 +8,14 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author yefrosiniya.zinkovskaya
- * @since 12.09.2026
+ * @since 14.09.2026
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApplicationUpdateStatusDto {
-    @NotNull
-    private ApplicationStatus newStatus;
+public class ApplicationStatusResponseDto {
+    private Long id;
+    private ApplicationStatus applicationStatus;
     private String rejectionReason;
 }
