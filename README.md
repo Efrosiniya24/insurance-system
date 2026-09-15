@@ -1,20 +1,24 @@
 ## Запуск системы
 
-Из корня репозитория выполнить:
+**1 Из корня репозитория выполнить:**
 
 ```bash
 docker compose build  
 docker compose up  
 ```
 
+Порты после запуска:
 Сервис страхования http://localhost:8080  
 Эмулятор реестра http://localhost:8081  
 Keycloak http://localhost:8082  
 PostgreSQL сервиса страхования localhost:5434  
 PostgreSQL эмулятора localhost:5433
 
-Токен и примеры API: `insurance-service/src/main/java/com/insurance/service/web/insurance-api.http`.  
-Другие примеры запросов лежат в файлах `application.http`, `contract.http`, `registry.http`
+**2 Для выполнения эндпоинтов необходимо авторизоваться и получить токен.** Просмотреть пример API, выполнить запрос и получить токен
+можно в `insurance-service/src/main/java/com/insurance/service/web/insurance-api.http`.
+Другие примеры эндпоинтов лежат в файлах `application.http`, `contract.http`, `registry.http`.
+
+Режим эмулятора: `GET` / `PUT http://localhost:8081/mode`
 
 ## **Содержание**
 
@@ -109,8 +113,14 @@ PostgreSQL эмулятора localhost:5433
 пакетно.    
 — Использование пагинации для списков заявок и договоров (`size` по умолчанию 20, сортировка `DESC` по `createdAt`). Добавлены
 индексы по `created_at` в таблицы `application` и `contract` и составной индекс `created_by_user_id + created_at` для заявок страхователя.  
+— Использование Specification для фильтрации по параметрам (опционально). Фильтрация для `application` по статусу и датам, для `contract` по
+статусу, датам создания договора и сроку.  
 — Для доступа к реестру используется Spring `RestClient`.    
-— Отправка запроса к реестру по договорам со статусом `PENDING` происходит каждые 10 секунд благодаря джобе с использованием `@Scheduled`.
+— Отправка запроса к реестру по договорам со статусом `PENDING` происходит каждые 10 секунд благодаря джобе с
+использованием `@Scheduled`.   
+— Использвоание Testcontainers для интеграционных тестов (`mvn test`).   
+
+
 
 
 

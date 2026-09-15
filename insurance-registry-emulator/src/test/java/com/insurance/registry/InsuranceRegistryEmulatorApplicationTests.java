@@ -1,13 +1,11 @@
 package com.insurance.registry;
 
+import com.insurance.registry.testsupport.AbstractRegistryTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class InsuranceRegistryEmulatorApplicationTests {
+class InsuranceRegistryEmulatorApplicationTests extends AbstractRegistryTest {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }

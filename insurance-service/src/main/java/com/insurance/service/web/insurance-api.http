@@ -23,11 +23,3 @@ password = underwriter
 > {%
     client.global.set("underwriter_token", response.body.access_token);
 %}
-
-###
-GET http://localhost:8080/application
-Authorization: Bearer {{policyholder_token}}
-
-###
-GET http://localhost:8080/application
-Authorization: Bearer {{underwriter_token}}
