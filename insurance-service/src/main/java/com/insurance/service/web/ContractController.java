@@ -1,6 +1,7 @@
 package com.insurance.service.web;
 
 import com.insurance.service.model.contract.dto.ContractDto;
+import com.insurance.service.model.contract.dto.ContractFilter;
 import com.insurance.service.security.annotation.CurrentUser;
 import com.insurance.service.security.dto.AuthenticatedUserDto;
 import com.insurance.service.service.ContractService;
@@ -53,7 +54,9 @@ public class ContractController {
     @GetMapping("/all")
     public ResponseEntity<Page<ContractDto>> getContracts(
         final @CurrentUser AuthenticatedUserDto currentUser,
-        final @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(contractService.getContractList(currentUser, pageable));
+        final ContractFilter filter,
+        final @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(contractService.getContractList(currentUser, pageable, filter));
     }
 }

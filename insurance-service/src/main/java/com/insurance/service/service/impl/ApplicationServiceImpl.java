@@ -9,6 +9,7 @@ import com.insurance.service.model.application.dto.ApplicationBeneficiaryRequest
 import com.insurance.service.model.application.dto.ApplicationBeneficiaryResponseDto;
 import com.insurance.service.model.application.dto.ApplicationDto;
 import com.insurance.service.model.application.dto.ApplicationEntityDto;
+import com.insurance.service.model.application.dto.ApplicationFilter;
 import com.insurance.service.model.application.dto.ApplicationInsuranceEventDto;
 import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
@@ -16,6 +17,7 @@ import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.model.application.entity.ApplicationEntity;
 import com.insurance.service.model.application.mapper.ApplicationMapper;
 import com.insurance.service.model.application.repository.ApplicationRepository;
+import com.insurance.service.model.application.specification.ApplicationSpecification;
 import com.insurance.service.model.user.dto.PersonalDataDto;
 import com.insurance.service.security.dto.AuthenticatedUserDto;
 import com.insurance.service.security.enums.UserRole;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,10 +70,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ApplicationDto> getApplicationList(final AuthenticatedUserDto currentUser, final Pageable pageable) {
-        final Page<ApplicationEntity> applications = currentUser.getRoles().contains(UserRole.UNDERWRITER)
-            ? applicationRepository.findAll(pageable)
-            : applicationRepository.findAllByCreatedByUserId(currentUser.getId(), pageable);
+    public Page<ApplicationDto> getApplicationList(
+        final AuthenticatedUserDto currentUser,
+        final Pageable pageable,
+        final ApplicationFilter filter
+    ) {
+        final Specification<ApplicationEntity> spec = currentUser.getRoles().contains(UserRole.UNDERWRITER)
+            ? ApplicationSpecification.from(filter)
+            : ApplicationSpecification.createdByUserId(currentUser.getId()).and(ApplicationSpecification.from(filter));
+        final Page<ApplicationEntity> applications = applicationRepository.findAll(spec, pageable);
         return new PageImpl<>(toApplicationDtoList(applications.getContent()), pageable, applications.getTotalElements());
     }
 

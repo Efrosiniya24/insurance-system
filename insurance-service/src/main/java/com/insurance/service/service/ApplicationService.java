@@ -2,6 +2,7 @@ package com.insurance.service.service;
 
 import com.insurance.service.model.application.dto.ApplicationDto;
 import com.insurance.service.model.application.dto.ApplicationEntityDto;
+import com.insurance.service.model.application.dto.ApplicationFilter;
 import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
@@ -31,9 +32,10 @@ public interface ApplicationService {
      *
      * @param currentUser authenticated user
      * @param pageable    pagination (page, size)
+     * @param filter      optional status and created-at range
      * @return page of application dtos
      */
-    Page<ApplicationDto> getApplicationList(AuthenticatedUserDto currentUser, Pageable pageable);
+    Page<ApplicationDto> getApplicationList(AuthenticatedUserDto currentUser, Pageable pageable, ApplicationFilter filter);
 
     /**
      * Creates an application with PENDING status

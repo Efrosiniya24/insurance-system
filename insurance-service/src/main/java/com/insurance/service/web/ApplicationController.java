@@ -1,6 +1,7 @@
 package com.insurance.service.web;
 
 import com.insurance.service.model.application.dto.ApplicationDto;
+import com.insurance.service.model.application.dto.ApplicationFilter;
 import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
@@ -46,8 +47,10 @@ public class ApplicationController {
     @GetMapping("/all")
     public ResponseEntity<Page<ApplicationDto>> getApplications(
         final @CurrentUser AuthenticatedUserDto currentUser,
-        final @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(applicationService.getApplicationList(currentUser, pageable));
+        final ApplicationFilter filter,
+        final @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(applicationService.getApplicationList(currentUser, pageable, filter));
     }
 
     @PreAuthorize("hasAuthority('POLICYHOLDER')")

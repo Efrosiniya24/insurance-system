@@ -11,10 +11,12 @@ import com.insurance.service.model.application.dto.ApplicationEntityDto;
 import com.insurance.service.model.application.dto.ApplicationInsuranceEventDto;
 import com.insurance.service.model.contract.dto.ContractBeneficiaryDto;
 import com.insurance.service.model.contract.dto.ContractDto;
+import com.insurance.service.model.contract.dto.ContractFilter;
 import com.insurance.service.model.contract.dto.ContractInsuranceEventDto;
 import com.insurance.service.model.contract.entity.ContractEntity;
 import com.insurance.service.model.contract.mapper.ContractMapper;
 import com.insurance.service.model.contract.repository.ContractRepository;
+import com.insurance.service.model.contract.specification.ContractSpecification;
 import com.insurance.service.model.sync.entity.ContractRegistrySyncEntity;
 import com.insurance.service.model.sync.projection.ContractRegistryStatusProjection;
 import com.insurance.service.model.sync.repository.ContractRegistrySyncRepository;
@@ -34,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,17 +126,25 @@ public class ContractServiceImpl implements ContractService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<ContractDto> getContractList(final AuthenticatedUserDto currentUser, final Pageable pageable) {
-        final Page<ContractEntity> page;
-        if (currentUser.getRoles().contains(UserRole.UNDERWRITER)) {
-            page = contractRepository.findAll(pageable);
-        } else {
-            final List<Long> applicationIds = ownerApplicationIds(currentUser.getId());
-            if (applicationIds.isEmpty()) {
-                return Page.empty(pageable);
-            }
-            page = contractRepository.findAllByApplicationIdIn(applicationIds, pageable);
+    public Page<ContractDto> getContractList(
+        final AuthenticatedUserDto currentUser,
+        final Pageable pageable,
+        final ContractFilter filter
+    ) {
+        final boolean isUnderwriter = currentUser.getRoles().contains(UserRole.UNDERWRITER);
+        final List<Long> applicationIds = isUnderwriter
+            ? List.of()
+            : ownerApplicationIds(currentUser.getId());
+
+        if (!isUnderwriter && applicationIds.isEmpty()) {
+            return Page.empty(pageable);
         }
+
+        final Specification<ContractEntity> spec = !isUnderwriter
+            ? ContractSpecification.applicationIdIn(applicationIds).and(ContractSpecification.from(filter))
+            : ContractSpecification.from(filter);
+
+        final Page<ContractEntity> page = contractRepository.findAll(spec, pageable);
         return new PageImpl<>(toContractDtoList(page.getContent(), currentUser.getId()), pageable, page.getTotalElements());
     }
 
