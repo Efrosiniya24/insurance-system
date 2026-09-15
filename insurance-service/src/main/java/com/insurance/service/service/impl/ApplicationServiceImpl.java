@@ -26,6 +26,9 @@ import com.insurance.service.service.ApplicationService;
 import com.insurance.service.service.UserPersonalDataService;
 import com.insurance.service.util.DocumentUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,11 +67,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ApplicationDto> getApplicationList(final AuthenticatedUserDto currentUser) {
-        final List<ApplicationEntity> applications = currentUser.getRoles().contains(UserRole.UNDERWRITER)
-            ? applicationRepository.findAll()
-            : applicationRepository.findAllByCreatedByUserId(currentUser.getId());
-        return toApplicationDtoList(applications);
+    public Page<ApplicationDto> getApplicationList(final AuthenticatedUserDto currentUser, final Pageable pageable) {
+        final Page<ApplicationEntity> applications = currentUser.getRoles().contains(UserRole.UNDERWRITER)
+            ? applicationRepository.findAll(pageable)
+            : applicationRepository.findAllByCreatedByUserId(currentUser.getId(), pageable);
+        return new PageImpl<>(toApplicationDtoList(applications.getContent()), pageable, applications.getTotalElements());
     }
 
     @Override

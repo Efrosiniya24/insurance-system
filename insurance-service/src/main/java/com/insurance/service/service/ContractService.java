@@ -2,8 +2,8 @@ package com.insurance.service.service;
 
 import com.insurance.service.model.contract.dto.ContractDto;
 import com.insurance.service.security.dto.AuthenticatedUserDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author yefrosiniya.zinkovskaya
@@ -34,9 +34,10 @@ public interface ContractService {
      * Returns own contracts for a policyholder or all contracts for an underwriter
      *
      * @param currentUser authenticated user
-     * @return contracts data
+     * @param pageable    pagination (page, size)
+     * @return page of contract dtos
      */
-    List<ContractDto> getContractList(AuthenticatedUserDto currentUser);
+    Page<ContractDto> getContractList(AuthenticatedUserDto currentUser, Pageable pageable);
 
     /**
      * Returns contract data for registration in the external registry

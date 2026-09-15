@@ -2,6 +2,8 @@ package com.insurance.service.model.application.repository;
 
 import com.insurance.service.model.application.entity.ApplicationEntity;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +16,7 @@ import java.util.Optional;
  * @since 11.09.2026
  */
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
-    List<ApplicationEntity> findAllByCreatedByUserId(String createdByUserId);
+    Page<ApplicationEntity> findAllByCreatedByUserId(String createdByUserId, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM ApplicationEntity a WHERE a.id = :id")

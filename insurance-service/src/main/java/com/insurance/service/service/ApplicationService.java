@@ -6,6 +6,8 @@ import com.insurance.service.model.application.dto.ApplicationStatusResponseDto;
 import com.insurance.service.model.application.dto.ApplicationUpdateStatusDto;
 import com.insurance.service.model.application.dto.CreateApplicationRequestDto;
 import com.insurance.service.security.dto.AuthenticatedUserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,9 +30,10 @@ public interface ApplicationService {
      * Returns own applications for a policyholder and all applications for an underwriter
      *
      * @param currentUser authenticated user
-     * @return applications dtos
+     * @param pageable    pagination (page, size)
+     * @return page of application dtos
      */
-    List<ApplicationDto> getApplicationList(AuthenticatedUserDto currentUser);
+    Page<ApplicationDto> getApplicationList(AuthenticatedUserDto currentUser, Pageable pageable);
 
     /**
      * Creates an application with PENDING status

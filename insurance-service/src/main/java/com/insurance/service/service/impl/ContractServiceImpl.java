@@ -31,6 +31,9 @@ import com.insurance.service.service.ContractService;
 import com.insurance.service.service.UserPersonalDataService;
 import com.insurance.service.util.DocumentUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,11 +123,18 @@ public class ContractServiceImpl implements ContractService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ContractDto> getContractList(final AuthenticatedUserDto currentUser) {
-        final List<ContractEntity> contracts = currentUser.getRoles().contains(UserRole.UNDERWRITER)
-            ? contractRepository.findAll()
-            : contractRepository.findAllByApplicationIdIn(ownerApplicationIds(currentUser.getId()));
-        return toContractDtoList(contracts, currentUser.getId());
+    public Page<ContractDto> getContractList(final AuthenticatedUserDto currentUser, final Pageable pageable) {
+        final Page<ContractEntity> page;
+        if (currentUser.getRoles().contains(UserRole.UNDERWRITER)) {
+            page = contractRepository.findAll(pageable);
+        } else {
+            final List<Long> applicationIds = ownerApplicationIds(currentUser.getId());
+            if (applicationIds.isEmpty()) {
+                return Page.empty(pageable);
+            }
+            page = contractRepository.findAllByApplicationIdIn(applicationIds, pageable);
+        }
+        return new PageImpl<>(toContractDtoList(page.getContent(), currentUser.getId()), pageable, page.getTotalElements());
     }
 
     @Override

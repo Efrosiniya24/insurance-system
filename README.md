@@ -13,7 +13,8 @@ Keycloak http://localhost:8082
 PostgreSQL сервиса страхования localhost:5434  
 PostgreSQL эмулятора localhost:5433
 
-Токен и примеры API: `insurance-service/src/main/java/com/insurance/service/web/insurance-api.http`
+Токен и примеры API: `insurance-service/src/main/java/com/insurance/service/web/insurance-api.http`.  
+Другие примеры запросов лежат в файлах `application.http`, `contract.http`, `registry.http`
 
 ## **Содержание**
 
@@ -88,7 +89,7 @@ PostgreSQL эмулятора localhost:5433
 реестре).
 
 Состояние регистрации в реестре хранится в БД `insurance_service`, после рестарта незарегистрированные договоры подхватываются снова (
-лагодаря джобе).  
+благодаря джобе).  
 Регистрация договора сохраняется в реестре.
 
 Режимы: `SUCCESS`, `BUSINESS_ERROR (400)`, `TECHNICAL_ERROR (500)`, `UNAVAILABLE (503)`.
@@ -102,9 +103,13 @@ PostgreSQL эмулятора localhost:5433
 
 — Два отдельных Spring Boot-приложения и две БД PostgreSQL.  
 — Схема через Liquibase, доступ к данным — Spring Data JPA и Hibernate.  
-— Пользователи и роли в Keycloak (`POLICYHOLDER`, `UNDERWRITER`).  
-— Заявка и договор — разные сущности. Договор создаётся как снимок одобренной заявки.  
+— Пользователи и роли в Keycloak (`POLICYHOLDER`, `UNDERWRITER`).
+— Заявка и договор — разные сущности. Договор создаётся как снимок одобренной заявки.
 — Списки заявок и договоров собираются без N+1: связанные выгодоприобретатели, риски, персональные данные и статус реестра загружаются
-пакетно.
+пакетно.  
+— Использование пагинации для списков заявок и договоров.
+— Для доступа к реестру используется Spring `RestClient`.  
+— Отправка запроса к реестру по договорам со статусом `PENDING` происходит каждые 10 секунд благодаря джобе с использованием `@Scheduled`.
+
 
 

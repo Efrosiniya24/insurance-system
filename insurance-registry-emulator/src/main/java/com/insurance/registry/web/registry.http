@@ -22,7 +22,7 @@ POST http://localhost:8081/registry/contracts
 Content-Type: application/json
 
 {
-  "contractNumber": "LC-1",
+  "contractNumber": "LC-26500EBD78",
   "contractStartDate": "2026-10-01",
   "contractEndDate": "2027-10-01",
   "sumInsured": 100000.00,
