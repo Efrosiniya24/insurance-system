@@ -335,4 +335,18 @@
         </addColumn>
         <dropDefaultValue tableName="contract_beneficiary" columnName="beneficiary_type"/>
     </changeSet>
+
+    <changeSet id="CREATE_LIST_CREATED_AT_INDEXES" author="yefrosiniya.zinkovskaya">
+        <comment>IS-5</comment>
+        <createIndex tableName="application" indexName="idx_application_created_at">
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex tableName="application" indexName="idx_application_created_by_user_id_created_at">
+            <column name="created_by_user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex tableName="contract" indexName="idx_contract_created_at">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

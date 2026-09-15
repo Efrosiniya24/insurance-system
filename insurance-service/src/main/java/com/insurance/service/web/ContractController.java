@@ -7,6 +7,7 @@ import com.insurance.service.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class ContractController {
     @GetMapping("/all")
     public ResponseEntity<Page<ContractDto>> getContracts(
         final @CurrentUser AuthenticatedUserDto currentUser,
-        final @PageableDefault(size = 20) Pageable pageable) {
+        final @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(contractService.getContractList(currentUser, pageable));
     }
 }
