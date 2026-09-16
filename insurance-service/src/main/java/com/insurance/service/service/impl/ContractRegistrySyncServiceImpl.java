@@ -11,6 +11,8 @@ import com.insurance.service.model.sync.repository.ContractRegistrySyncRepositor
 import com.insurance.service.service.ContractRegistrySyncService;
 import com.insurance.service.service.ContractService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -27,6 +29,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ContractRegistrySyncServiceImpl implements ContractRegistrySyncService {
     private static final int ERROR_MESSAGE_MAX_LENGTH = 255;
+    private static final int SYNC_BATCH_SIZE = 10;
 
     private final ContractRegistrySyncRepository contractRegistrySyncRepository;
     private final ContractService contractService;
@@ -36,7 +39,10 @@ public class ContractRegistrySyncServiceImpl implements ContractRegistrySyncServ
     @Override
     @Scheduled(fixedDelayString = "PT10S")
     public void syncPending() {
-        contractRegistrySyncRepository.findAllByContractRegistryStatus(ContractRegistryStatus.PENDING)
+        contractRegistrySyncRepository.findAllByContractRegistryStatus(
+                ContractRegistryStatus.PENDING,
+                PageRequest.of(0, SYNC_BATCH_SIZE, Sort.by("createdAt").ascending())
+            )
             .forEach(this::syncOne);
     }
 

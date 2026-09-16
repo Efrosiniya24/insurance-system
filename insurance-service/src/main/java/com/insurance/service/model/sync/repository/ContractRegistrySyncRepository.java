@@ -3,6 +3,7 @@ package com.insurance.service.model.sync.repository;
 import com.insurance.service.enums.ContractRegistryStatus;
 import com.insurance.service.model.sync.entity.ContractRegistrySyncEntity;
 import com.insurance.service.model.sync.projection.ContractRegistryStatusProjection;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -22,4 +23,6 @@ public interface ContractRegistrySyncRepository extends JpaRepository<ContractRe
     List<ContractRegistryStatusProjection> findAllByContractIdIn(List<Long> contractIds);
 
     List<ContractRegistrySyncEntity> findAllByContractRegistryStatus(ContractRegistryStatus status);
+
+    List<ContractRegistrySyncEntity> findAllByContractRegistryStatus(ContractRegistryStatus status, Pageable pageable);
 }
