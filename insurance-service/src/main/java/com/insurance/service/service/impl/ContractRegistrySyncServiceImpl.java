@@ -13,6 +13,7 @@ import com.insurance.service.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -54,15 +55,20 @@ public class ContractRegistrySyncServiceImpl implements ContractRegistrySyncServ
             );
             markRegistered(sync, response.getRegistryNumber());
         } catch (final RestClientResponseException ex) {
-            if (ex.getStatusCode().is4xxClientError()) {
-                markFailed(
+            switch (HttpStatus.resolve(ex.getStatusCode().value())) {
+                case BAD_REQUEST -> markFailed(
                     sync,
                     ContractRegistryStatus.REJECTED,
                     SyncErrorType.BUSINESS,
                     ex.getStatusText()
                 );
-            } else {
-                markFailed(
+                case SERVICE_UNAVAILABLE -> markFailed(
+                    sync,
+                    ContractRegistryStatus.PENDING,
+                    SyncErrorType.TEMPORAL,
+                    ex.getStatusText()
+                );
+                case null, default -> markFailed(
                     sync,
                     ContractRegistryStatus.PENDING,
                     SyncErrorType.TECHNICAL,
